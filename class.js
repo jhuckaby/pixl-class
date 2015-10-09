@@ -5,7 +5,7 @@
 var util = require("util");
 var events = require("events");
 
-exports.create = function(members) {
+exports.create = function create(members) {
 	// create new class using php-style syntax (sort of)
 	if (!members) members = {};
 	
