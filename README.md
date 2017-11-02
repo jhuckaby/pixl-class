@@ -239,6 +239,48 @@ var Party = Class.create({
 });
 ```
 
+## Async/Await
+
+Node.js v8 introduced native support for the [async](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function)/[await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) pattern.  If your class has callback-based methods that you want to auto-convert into [promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) for async/await, simply declare a `__promisify` property, and set it to true:
+
+```js
+var Sleeper = Class.create({
+	
+	// promisify all methods
+	__promisify: true,
+	
+	sleep: function(ms, callback) {
+		// sleep for N milliseconds, then fire callback
+		setTimeout( function() { callback(false); }, ms );
+	}
+	
+});
+```
+
+This will wrap all your methods with Node's [util.promisify](https://nodejs.org/api/util.html#util_util_promisify_original), making them instantly ready for async/await.  Example usage:
+
+```js
+var snooze = new Sleeper();
+
+async function main() {
+	await snooze.sleep( 1000 ); // waits for 1 second here
+	console.log("This happened 1 second later!");
+};
+
+main();
+```
+
+If you only want *some* of your methods to be promisified, set the `__promisify` property to an array containing all the method names.  Example:
+
+```js
+{
+	// only promisify some methods
+	__promisify: ["sleep"]
+}
+```
+
+Note that in order for your methods to be promise-compatible, they must accept a callback as the final argument, and that callback must be called using the standard Node.js convention (i.e. `(err)` or `(err, result)`).  The error *must* be the first argument sent to the callback (or false/undefined on success), and a result, if any, must be the second argument.
+
 # License
 
 Copyright (c) 2015 - 2017 Joseph Huckaby

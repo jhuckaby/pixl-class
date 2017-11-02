@@ -73,6 +73,27 @@ exports.create = function create(members) {
 		delete members.__mixins;
 	} // mixins
 	
+	// handle promisify (node 8+)
+	if (members.__promisify && util.promisify) {
+		if (Array.isArray(members.__promisify)) {
+			// promisify some
+			members.__promisify.forEach( function(key) {
+				if (typeof(members[key]) == 'function') {
+					members[key] = util.promisify( members[key] );
+				}
+			} );
+		}
+		else {
+			// promisify all
+			for (var key in members) {
+				if (!key.match(/^__/) && (typeof(members[key]) == 'function')) {
+					members[key] = util.promisify( members[key] );
+				}
+			}
+		}
+		delete members.__promisify;
+	}
+	
 	// fill prototype members
 	for (var key in members) {
 		constructor.prototype[key] = members[key];
