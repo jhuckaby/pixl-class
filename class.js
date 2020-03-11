@@ -20,10 +20,11 @@ exports.create = function create(members) {
 		}
 		else {
 			// inherit parent's constructor
-			var code = members.__parent.toString();
-			var args = code.substring( code.indexOf("(")+1, code.indexOf(")") );
-			var inner_code = code.substring( code.indexOf("{")+1, code.lastIndexOf("}") );
-			eval('constructor = function ('+args+') {'+inner_code+'};');
+			var parent = members.__parent;
+			constructor = function() {
+				var args = Array.prototype.slice.call(arguments);
+				parent.apply( this, args );
+			};
 		}
 		
 		// inherit rest of parent members
